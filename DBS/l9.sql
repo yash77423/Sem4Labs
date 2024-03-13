@@ -73,7 +73,7 @@ END Instructor_Info;
 
 -- PL/SQL block to demonstrate usage
 DECLARE
-    v_dept_name VARCHAR2(255) := 'Computer Science'; -- Specify the department name
+    v_dept_name VARCHAR2(255) := 'Comp. Sci.'; -- Specify the department name
     v_max_salary NUMBER;
 BEGIN
     -- Call the procedure to list instructors
