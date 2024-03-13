@@ -1,39 +1,33 @@
 --Q6.
 
-DECLARE
-    v_dept_name VARCHAR2(255);
-    v_course_title VARCHAR2(255);
+CREATE OR REPLACE FUNCTION department_highest(p_dept_name IN VARCHAR2)
+RETURN INSTRUCTOR%ROWTYPE
+IS
+    v_highest_salary INSTRUCTOR.salary%TYPE;
+    v_instructor INSTRUCTOR%ROWTYPE;
 BEGIN
-    FOR dept_rec IN (SELECT DISTINCT dept_name FROM Course)
-    LOOP
-        v_dept_name := dept_rec.dept_name;
-        v_course_title := course_popular(v_dept_name);
-        DBMS_OUTPUT.PUT_LINE('Most popular course in department ' || v_dept_name || ': ' || v_course_title);
-    END LOOP;
+    SELECT *
+    INTO v_instructor
+    FROM INSTRUCTOR
+    WHERE dept_name = p_dept_name
+    ORDER BY salary DESC
+    FETCH FIRST 1 ROW ONLY;
+
+    RETURN v_instructor;
 END;
 /
 
-CREATE OR REPLACE FUNCTION course_popular (p_dept_name VARCHAR2) RETURN VARCHAR2
-IS
-    v_course_title VARCHAR2(255);
-    v_max_students NUMBER := 0;
-    v_temp_course_title VARCHAR2(255);
+DECLARE
+    v_dept_name DEPARTMENT.dept_name%TYPE;
+    v_highest_instructor INSTRUCTOR%ROWTYPE;
 BEGIN
-    FOR course_rec IN (SELECT title, COUNT(*) AS num_students
-                        FROM Takes
-                        JOIN Course ON Takes.course_id = Course.course_id
-                        WHERE Course.dept_name = p_dept_name
-                        GROUP BY title)
+    FOR rec IN (SELECT DISTINCT dept_name FROM INSTRUCTOR)
     LOOP
-        IF course_rec.num_students > v_max_students THEN
-            v_max_students := course_rec.num_students;
-            v_temp_course_title := course_rec.title;
-        END IF;
+        v_dept_name := rec.dept_name;
+        v_highest_instructor := department_highest(v_dept_name);
+
+        DBMS_OUTPUT.PUT_LINE('Highest paid instructor in ' || v_dept_name || ' is ' || v_highest_instructor.name || ' and is paid ' || v_highest_instructor.salary);
     END LOOP;
-    
-    v_course_title := v_temp_course_title;
-    
-    RETURN v_course_title;
 END;
 /
 
